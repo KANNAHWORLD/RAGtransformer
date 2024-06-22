@@ -201,7 +201,7 @@ if __name__ == '__main__':
     parser.add_argument('--input')
     
     args = parser.parse_args()
-    file = open(args.input, 'r')
+    file = args.input
 
     def parse_file(filename):
         with open(filename, 'r') as f:
