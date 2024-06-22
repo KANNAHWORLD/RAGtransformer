@@ -1,1 +1,1 @@
---lr 1.00e-5 --batch 8 --epochs 4
+--lr 1.00e-5 --batch 8 --epochs 10
