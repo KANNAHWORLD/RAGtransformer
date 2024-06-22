@@ -13,6 +13,8 @@ from itertools import chain
 import tqdm
 import os
 import bisect
+import argparse
+import shlex
 
 # Disk locations
 VALIDATION_DISK_NAME =  "./tokenized/validation/"
@@ -193,11 +195,30 @@ def manual_compute_validation_loss(model, validation_data):
 
     model.train()
 
-
-
 if __name__ == '__main__':
 
-    os.environ['PYTORCH_MPS_HIGH_WATERMARK_RATIO'] = '0.0'
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--input')
+    
+    args = parser.parse_args()
+    file = open(args.input, 'r')
+
+    def parse_file(filename):
+        with open(filename, 'r') as f:
+            args = shlex.split(f.read())
+        return args
+
+    parser = argparse.ArgumentParser()
+    ## parse the arguments for ep, weighted, atoms, sparsity, seed, epochs
+    parser.add_argument('--lr', type=float, default=1e-5, help='Learning rate')
+    parser.add_argument('--batch', type=int, default=4, help='Batch size')
+    parser.add_argument('--epochs', type=int, default=1, help='Number of epochs for training')
+
+    args = parser.parse_args(parse_file(file))
+
+    BATCH_SIZE = args.batch
+    LEARNING_RATE = args.lr
+    EPOCHS = args.epochs
 
     if LOAD_PROCESS_DATASET:
         train_data = load_dataset(DATASET_NAME, split='train', trust_remote_code=True)
@@ -252,7 +273,7 @@ if __name__ == '__main__':
             learning_rate.step()
 
             # Saving model checkpoint
-            MODEL_PATH = os.path.join(os.getcwd(), f'checkpoint/{BASE_MODEL}_{epoch}_{BATCH_SIZE}_{LEARNING_RATE}')
+            MODEL_PATH = os.path.join(os.getcwd(), f'checkpoint/{BASE_MODEL}_EPOCH{epoch}_BATCH{BATCH_SIZE}_LR{LEARNING_RATE}')
             if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
             model.save_pretrained(MODEL_PATH)
 
